@@ -22,8 +22,8 @@ func main() {
 			buildDebug("dolphin attacks swimmers", "worse than shark", nil),
 		})
 
-	articles.push(dolphins)
-	articles.push(guns)
+	cache.push(dolphins)
+	cache.push(guns)
 
 	// spin up the server
 	http.ListenAndServe(":8002", newHandler())

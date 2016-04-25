@@ -9,11 +9,6 @@ import (
 	"net/http"
 )
 
-func asbytes(vars ...interface{}) []byte {
-	str := fmt.Sprint(vars...)
-	return []byte(str)
-}
-
 // HandleAddArticle takes care of adding an article to article list.
 // The article(s) to add are passed in as the JSON body.
 // Endpoint should be /add.
@@ -31,7 +26,7 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articles.push(article)
+	cache.push(article)
 }
 
 // HandleGetFrontpage returns a list of all the "top" articles.
@@ -40,7 +35,21 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 // [ {Title:"a"}, {Title:"b"} ]
 // Endpoint should be /frontpage.
 func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
-	data, err := articles.buildJSON()
+
+	// buildJSON converts the list of articles to JSON
+	articleMap := make([]map[string]string, cache.count)
+	tmp := cache.start
+	i := 0
+	for tmp != nil {
+		articleMap[i] = map[string]string{
+			"Title": tmp.article.Title,
+		}
+
+		i++
+		tmp = tmp.next
+	}
+
+	data, err := json.Marshal(articleMap)
 	if err != nil {
 		w.Write(asbytes("error converting to json:", err.Error()))
 		return
@@ -62,7 +71,7 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 // The endpoint should be /article/{title}
 func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	article, ok := articles.titleMap[vars["title"]]
+	article, ok := cache.articleByTitle(vars["title"])
 	if !ok {
 		w.Write(asbytes("error finding article called", vars["title"]))
 		return
@@ -95,4 +104,9 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(data)
+}
+
+func asbytes(vars ...interface{}) []byte {
+	str := fmt.Sprint(vars...)
+	return []byte(str)
 }

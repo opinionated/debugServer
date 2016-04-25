@@ -84,14 +84,14 @@ func addTestSet(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 	assert.Equal(t, "", resp.Body.String())
 
-	assert.Equal(t, 2, articles.count)
+	assert.Equal(t, 2, cache.count)
 }
 
 func clearArticles() {
-	articles = articleList{
+	cache = ArticleCache{
 		limit:    10,
 		count:    0,
-		titleMap: make(map[string]debugAPI.GenericArticle),
+		titleMap: make(map[string]articlePair),
 		start:    nil,
 		end:      nil,
 	}
@@ -107,10 +107,10 @@ func TestAddArticle(t *testing.T) {
 	assert.Equal(t, "", resp.Body.String())
 
 	// now go test the body
-	assert.Equal(t, 1, articles.count)
-	assert.NotNil(t, articles.start)
+	assert.Equal(t, 1, cache.count)
+	assert.NotNil(t, cache.start)
 
-	article := articles.start.article
+	article := cache.start.article
 	assert.Equal(t, article.Title, "Guns")
 	assert.Len(t, article.Related, 2)
 	assert.Equal(t, article.Body, testSet.guns["Body"])
@@ -121,7 +121,7 @@ func TestAddToPop(t *testing.T) {
 	str, err := setToString(testSet.guns)
 	assert.Nil(t, err)
 
-	for i := 0; i < articles.limit+1; i++ {
+	for i := 0; i < cache.limit+1; i++ {
 		resp := postHTTPResponse("/add", str)
 		assert.Equal(t, 200, resp.Code)
 		assert.Equal(t, "", resp.Body.String())
@@ -171,9 +171,9 @@ func TestGetRelated(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 	assert.NotNil(t, resp.Body)
 
-	if _, ok := articles.titleMap["Guns good"]; !ok {
+	if _, ok := cache.titleMap["Guns good"]; !ok {
 		t.Error("Expected article, but could not find!")
-		t.Error("list is:", articles.titleMap)
+		t.Error("list is:", cache.titleMap)
 	}
 
 	var article debugAPI.GenericArticle
@@ -226,4 +226,37 @@ func TestAddDebug(t *testing.T) {
 
 	assert.Equal(t, 1.0, taxonomy["a"])
 	assert.Equal(t, 2.0, taxonomy["b"])
+}
+
+func TestDoubleRemove(t *testing.T) {
+	// get adding a related article twice, then bumping the first occurance
+	clearArticles()
+	cache.push(buildDebug("a", "a", []debugAPI.GenericArticle{
+		buildDebug("popular", "", nil),
+	}))
+
+	spam := buildDebug("s", "s", []debugAPI.GenericArticle{
+		buildDebug("other", "", nil),
+	})
+
+	// fill up the cache part of the way
+	for i := 0; i < 6; i++ {
+		cache.push(spam)
+	}
+
+	// double add the article "popular"
+	cache.push(buildDebug("b", "b", []debugAPI.GenericArticle{
+		buildDebug("popular", "", nil),
+	}))
+
+	// fill the cache the rest of the way
+	for i := 0; i < 5; i++ {
+		cache.push(spam)
+	}
+
+	_, ok := cache.articleByTitle("popular")
+	assert.True(t, ok)
+
+	_, ok = cache.articleByTitle("a")
+	assert.False(t, ok)
 }

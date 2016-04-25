@@ -1,22 +1,20 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/opinionated/debugServer/debugAPI"
 )
 
 // for holding all the articles
-var articles = articleList{
+var cache = ArticleCache{
 	limit:    10,
 	count:    0,
-	titleMap: make(map[string]debugAPI.GenericArticle),
+	titleMap: make(map[string]articlePair),
 	start:    nil,
 	end:      nil,
 }
 
-// holds the list of active articles
-// not currently thread safe...
-type articleList struct {
+// ArticleCache stores all the active articles
+type ArticleCache struct {
 	start *articleNode
 	end   *articleNode
 
@@ -24,28 +22,17 @@ type articleList struct {
 	limit int
 	count int
 
-	titleMap map[string]debugAPI.GenericArticle
+	titleMap map[string]articlePair
 }
 
-// buildJSON converts the list of articles to JSON
-func (list *articleList) buildJSON() ([]byte, error) {
-	articles := make([]map[string]string, list.count)
-	tmp := list.start
-	i := 0
-	for tmp != nil {
-		articles[i] = map[string]string{
-			"Title": tmp.article.Title,
-		}
-
-		i++
-		tmp = tmp.next
-	}
-
-	return json.Marshal(articles)
+// because related articles may appear multiple times
+type articlePair struct {
+	count   int
+	article debugAPI.GenericArticle
 }
 
 // add a new article to the list
-func (list *articleList) push(article debugAPI.GenericArticle) {
+func (list *ArticleCache) push(article debugAPI.GenericArticle) {
 	node := new(articleNode)
 	node.article = article
 	node.next = list.start
@@ -55,10 +42,7 @@ func (list *articleList) push(article debugAPI.GenericArticle) {
 		list.end = node
 	}
 
-	list.titleMap[article.Title] = article
-	for _, related := range article.Related {
-		list.titleMap[related.Title] = related
-	}
+	list.addToMap(article)
 
 	// do we need to bump
 	if list.count == list.limit {
@@ -68,12 +52,38 @@ func (list *articleList) push(article debugAPI.GenericArticle) {
 	}
 }
 
-// get an article from it's title
-func (list articleList) articleByTitle(title string) debugAPI.GenericArticle {
-	return list.titleMap[title]
+func (list *ArticleCache) addToMap(article debugAPI.GenericArticle) {
+	list.titleMap[article.Title] = articlePair{article: article, count: 1}
+
+	for _, related := range article.Related {
+		pair, ok := list.titleMap[related.Title]
+		if !ok {
+			list.titleMap[related.Title] =
+				articlePair{article: related, count: 1}
+		} else {
+			pair.count++
+			list.titleMap[related.Title] = pair
+		}
+	}
 }
 
-func (list *articleList) popBack() {
+func (list *ArticleCache) removeFromMap(article debugAPI.GenericArticle) {
+	pair := list.titleMap[article.Title]
+	if pair.count == 1 {
+		delete(list.titleMap, article.Title)
+	} else {
+		pair.count--
+		list.titleMap[article.Title] = pair
+	}
+}
+
+// get an article from it's title
+func (list ArticleCache) articleByTitle(title string) (debugAPI.GenericArticle, bool) {
+	pair, ok := list.titleMap[title]
+	return pair.article, ok
+}
+
+func (list *ArticleCache) popBack() {
 	tmp := list.start
 	for tmp.next != list.end {
 		tmp = tmp.next
@@ -81,11 +91,11 @@ func (list *articleList) popBack() {
 
 	// remove from map
 	toRemove := tmp.next
-	delete(list.titleMap, toRemove.article.Title)
 	related := toRemove.article.Related
 	for i := range related {
-		delete(list.titleMap, related[i].Title)
+		list.removeFromMap(related[i])
 	}
+	list.removeFromMap(toRemove.article)
 
 	// bump from list
 	list.end = tmp
