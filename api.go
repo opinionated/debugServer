@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	//"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 )
@@ -49,4 +49,36 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 	} else if n != len(data) {
 		w.Write(asbytes("error writing data: did not write full json"))
 	}
+}
+
+// HandleGetArticle returns an article body and list of related articles.
+// It should be called after the article is clicked on.
+// The endpoint should be /article/{title}
+func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	article, ok := articles.titleMap[vars["title"]]
+	if !ok {
+		w.Write(asbytes("error finding article called", vars["title"]))
+		return
+	}
+
+	ret := make(map[string]interface{})
+	ret["Body"] = article.Body
+
+	related := make([]map[string]string, len(article.Related))
+	for i, r := range article.Related {
+		related[i] = map[string]string{
+			"Title": r.Title,
+		}
+	}
+
+	ret["Related"] = related
+
+	data, err := json.Marshal(ret)
+	if err != nil {
+		w.Write(asbytes("error marshalling json"))
+		return
+	}
+
+	w.Write(data)
 }

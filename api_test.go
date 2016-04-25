@@ -145,3 +145,35 @@ func TestGetArticles(t *testing.T) {
 	assert.Nil(t, articles[0].Related)
 	assert.Nil(t, articles[1].Related)
 }
+
+func testGetArticle(t *testing.T) {
+	addTestSet(t)
+
+	resp := getHTTPResponse("/article/Guns")
+	assert.Equal(t, 200, resp.Code)
+	assert.NotNil(t, resp.Body)
+
+	var article genericArticle
+	err := json.Unmarshal(resp.Body.Bytes(), &article)
+	assert.Nil(t, err)
+
+	assert.Equal(t, testSet.guns["Body"], article.Body)
+	assert.Len(t, article.Related, 2)
+	assert.Equal(t, "Guns Good", article.Related[0].Title)
+	assert.Equal(t, "Stop Guns", article.Related[1].Title)
+}
+
+func testGetRelated(t *testing.T) {
+	addTestSet(t)
+
+	resp := getHTTPResponse("/article/Guns Good")
+	assert.Equal(t, 200, resp.Code)
+	assert.NotNil(t, resp.Body)
+
+	var article genericArticle
+	err := json.Unmarshal(resp.Body.Bytes(), &article)
+	assert.Nil(t, err)
+
+	assert.Equal(t, "shoot stuff", article.Body)
+	assert.Len(t, article.Related, 0)
+}
