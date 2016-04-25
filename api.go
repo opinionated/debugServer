@@ -36,7 +36,9 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetFrontpage returns a list of all the "top" articles.
 // TODO: decide if this is how we want to do this perminently.
-// Endpoint should be /frontpage
+// The body will look something like this:
+// [ {Title:"a"}, {Title:"b"} ]
+// Endpoint should be /frontpage.
 func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 	data, err := articles.buildJSON()
 	if err != nil {
@@ -54,6 +56,9 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetArticle returns an article body and list of related articles.
 // It should be called after the article is clicked on.
+// The body will look something like this:
+// { Body:"...", DebugInfo:{}, Related:[{Title:"", DebugInfo:""}]}
+// note that debug info can have anything in it and related is an array
 // The endpoint should be /article/{title}
 func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
