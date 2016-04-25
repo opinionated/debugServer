@@ -88,13 +88,7 @@ func addTestSet(t *testing.T) {
 }
 
 func clearArticles() {
-	cache = ArticleCache{
-		limit:    10,
-		count:    0,
-		titleMap: make(map[string]articlePair),
-		start:    nil,
-		end:      nil,
-	}
+	cache.clear()
 }
 
 func TestAddArticle(t *testing.T) {
@@ -259,4 +253,15 @@ func TestDoubleRemove(t *testing.T) {
 
 	_, ok = cache.articleByTitle("a")
 	assert.False(t, ok)
+}
+
+func TestClear(t *testing.T) {
+	addTestSet(t)
+	assert.Equal(t, 2, cache.count)
+
+	resp := postHTTPResponse("/clear", "")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "", resp.Body.String())
+
+	assert.Equal(t, 0, cache.count)
 }

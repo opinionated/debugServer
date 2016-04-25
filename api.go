@@ -19,6 +19,7 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// parse and push onto the cache
 	var article debugAPI.GenericArticle
 	err = json.Unmarshal(raw, &article)
 	if err != nil {
@@ -26,7 +27,9 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cache.lock()
 	cache.push(article)
+	cache.unlock()
 }
 
 // HandleGetFrontpage returns a list of all the "top" articles.
@@ -36,7 +39,10 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 // Endpoint should be /frontpage.
 func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 
-	// buildJSON converts the list of articles to JSON
+	// START CRITICAL SECTION
+	cache.lock()
+
+	// convert the list of articles to JSON
 	articleMap := make([]map[string]string, cache.count)
 	tmp := cache.start
 	i := 0
@@ -49,6 +55,10 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 		tmp = tmp.next
 	}
 
+	cache.unlock()
+	// END CRITICAL SECTION
+
+	// marshal and send the data
 	data, err := json.Marshal(articleMap)
 	if err != nil {
 		w.Write(asbytes("error converting to json:", err.Error()))
@@ -70,8 +80,13 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 // note that debug info can have anything in it and related is an array
 // The endpoint should be /article/{title}
 func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
+
+	cache.lock()
 	article, ok := cache.articleByTitle(vars["title"])
+	cache.unlock()
+
 	if !ok {
 		w.Write(asbytes("error finding article called", vars["title"]))
 		return
@@ -87,6 +102,7 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 
 		related := make([]map[string]interface{}, len(article.Related))
 		for i, r := range article.Related {
+
 			// send the debug info with the article
 			related[i] = map[string]interface{}{
 				"Title":     r.Title,
@@ -106,7 +122,17 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// HandleClearArticles dumps the cache.
+// By default the cache holds 10 articles on the home page.
+// The endpoint should be /clear
+func HandleClearArticles(w http.ResponseWriter, r *http.Request) {
+	cache.lock()
+	cache.clear()
+	cache.unlock()
+}
+
 func asbytes(vars ...interface{}) []byte {
+	// helper converts a string to bytes for writing msgs
 	str := fmt.Sprint(vars...)
 	return []byte(str)
 }
