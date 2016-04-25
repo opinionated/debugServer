@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/opinionated/debugServer/debugAPI"
 )
 
 // for holding all the articles
 var articles = articleList{
 	limit:    10,
 	count:    0,
-	titleMap: make(map[string]genericArticle),
+	titleMap: make(map[string]debugAPI.GenericArticle),
 	start:    nil,
 	end:      nil,
 }
@@ -23,7 +24,7 @@ type articleList struct {
 	limit int
 	count int
 
-	titleMap map[string]genericArticle
+	titleMap map[string]debugAPI.GenericArticle
 }
 
 // buildJSON converts the list of articles to JSON
@@ -44,7 +45,7 @@ func (list *articleList) buildJSON() ([]byte, error) {
 }
 
 // add a new article to the list
-func (list *articleList) push(article genericArticle) {
+func (list *articleList) push(article debugAPI.GenericArticle) {
 	node := new(articleNode)
 	node.article = article
 	node.next = list.start
@@ -55,6 +56,9 @@ func (list *articleList) push(article genericArticle) {
 	}
 
 	list.titleMap[article.Title] = article
+	for _, related := range article.Related {
+		list.titleMap[related.Title] = related
+	}
 
 	// do we need to bump
 	if list.count == list.limit {
@@ -65,7 +69,7 @@ func (list *articleList) push(article genericArticle) {
 }
 
 // get an article from it's title
-func (list articleList) articleByTitle(title string) genericArticle {
+func (list articleList) articleByTitle(title string) debugAPI.GenericArticle {
 	return list.titleMap[title]
 }
 
@@ -92,19 +96,5 @@ func (list *articleList) popBack() {
 // forward list
 type articleNode struct {
 	next    *articleNode
-	article genericArticle
-}
-
-// generic article for all types
-type genericArticle struct {
-	Title string `json:"Title"`
-	// TODO: make sure that this decodes properly...
-	Body  string `json:"Body"` // ignore this field
-	Blurb string `json:"Blurb"`
-
-	// articles related to the main article
-	Related []genericArticle `json:"Related,omitempty"`
-
-	// for the first send json stuff
-	shortMap map[string]string
+	article debugAPI.GenericArticle
 }

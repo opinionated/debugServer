@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/opinionated/debugServer/debugAPI"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -90,7 +91,7 @@ func clearArticles() {
 	articles = articleList{
 		limit:    10,
 		count:    0,
-		titleMap: make(map[string]genericArticle),
+		titleMap: make(map[string]debugAPI.GenericArticle),
 		start:    nil,
 		end:      nil,
 	}
@@ -134,7 +135,7 @@ func TestGetArticles(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 	assert.NotNil(t, resp.Body)
 
-	var articles []genericArticle
+	var articles []debugAPI.GenericArticle
 	err := json.Unmarshal(resp.Body.Bytes(), &articles)
 
 	assert.Nil(t, err)
@@ -146,34 +147,83 @@ func TestGetArticles(t *testing.T) {
 	assert.Nil(t, articles[1].Related)
 }
 
-func testGetArticle(t *testing.T) {
+func TestGetArticle(t *testing.T) {
 	addTestSet(t)
 
 	resp := getHTTPResponse("/article/Guns")
 	assert.Equal(t, 200, resp.Code)
 	assert.NotNil(t, resp.Body)
 
-	var article genericArticle
+	var article debugAPI.GenericArticle
 	err := json.Unmarshal(resp.Body.Bytes(), &article)
 	assert.Nil(t, err)
 
 	assert.Equal(t, testSet.guns["Body"], article.Body)
 	assert.Len(t, article.Related, 2)
-	assert.Equal(t, "Guns Good", article.Related[0].Title)
-	assert.Equal(t, "Stop Guns", article.Related[1].Title)
+	assert.Equal(t, "Guns good", article.Related[0].Title)
+	assert.Equal(t, "Stop guns", article.Related[1].Title)
 }
 
-func testGetRelated(t *testing.T) {
+func TestGetRelated(t *testing.T) {
 	addTestSet(t)
 
-	resp := getHTTPResponse("/article/Guns Good")
+	resp := getHTTPResponse("/article/Guns good")
 	assert.Equal(t, 200, resp.Code)
 	assert.NotNil(t, resp.Body)
 
-	var article genericArticle
+	if _, ok := articles.titleMap["Guns good"]; !ok {
+		t.Error("Expected article, but could not find!")
+		t.Error("list is:", articles.titleMap)
+	}
+
+	var article debugAPI.GenericArticle
 	err := json.Unmarshal(resp.Body.Bytes(), &article)
-	assert.Nil(t, err)
+	if !assert.Nil(t, err) {
+		t.Error("json body is:", resp.Body.String())
+	}
 
 	assert.Equal(t, "shoot stuff", article.Body)
 	assert.Len(t, article.Related, 0)
+}
+
+func TestAddDebug(t *testing.T) {
+	guns := testSet.guns
+	guns["Title"] = "debug"
+	guns["DebugInfo"] = map[string]interface{}{
+		"Score": 1.0,
+		"Taxonomy": map[string]interface{}{
+			"a": 1,
+			"b": 2,
+		},
+	}
+
+	str, err := setToString(guns)
+	assert.Nil(t, err)
+
+	// add our article with debug info up to the server
+	clearArticles()
+	resp := postHTTPResponse("/add", str)
+	assert.NotNil(t, resp.Body)
+	assert.Equal(t, "", resp.Body.String())
+
+	resp = getHTTPResponse("/article/debug")
+	assert.NotNil(t, resp.Body)
+
+	var data map[string]interface{}
+	err = json.Unmarshal(resp.Body.Bytes(), &data)
+	assert.Nil(t, err)
+
+	// pull the debug info out of the json
+	rawDebug, ok := data["DebugInfo"]
+	assert.True(t, ok)
+	debugInfo, ok := rawDebug.(map[string]interface{})
+	assert.True(t, ok)
+
+	// check that the sub info exists
+	assert.Equal(t, 1.0, debugInfo["Score"])
+	taxonomy, ok := debugInfo["Taxonomy"].(map[string]interface{})
+	assert.True(t, ok)
+
+	assert.Equal(t, 1.0, taxonomy["a"])
+	assert.Equal(t, 2.0, taxonomy["b"])
 }

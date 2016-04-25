@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/opinionated/debugServer/debugAPI"
 	"io/ioutil"
 	"net/http"
 )
@@ -23,7 +24,7 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var article genericArticle
+	var article debugAPI.GenericArticle
 	err = json.Unmarshal(raw, &article)
 	if err != nil {
 		w.Write(asbytes("error parsing body:", err.Error()))
@@ -62,17 +63,25 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// doesn't yet have the body or the debug info
 	ret := make(map[string]interface{})
 	ret["Body"] = article.Body
+	ret["DebugInfo"] = article.DebugInfo
 
-	related := make([]map[string]string, len(article.Related))
-	for i, r := range article.Related {
-		related[i] = map[string]string{
-			"Title": r.Title,
+	// build the related articles only if they exist
+	if len(article.Related) > 0 {
+
+		related := make([]map[string]interface{}, len(article.Related))
+		for i, r := range article.Related {
+			// send the debug info with the article
+			related[i] = map[string]interface{}{
+				"Title":     r.Title,
+				"DebugInfo": r.DebugInfo,
+			}
 		}
-	}
 
-	ret["Related"] = related
+		ret["Related"] = related
+	}
 
 	data, err := json.Marshal(ret)
 	if err != nil {
