@@ -26,16 +26,16 @@ func ToDebug(analyzed analyzer.Analyzable, related []analyzer.Analyzable) (Gener
 
 	ret := GenericArticle{}
 
-	ok, err := store.FileExists(analyzed.FileName)
+	ok, err := store.FolderExists(analyzed.FileName)
 	if err != nil {
-		return ret, err
+		return ret, fmt.Errorf("error checking for file: %s", err.Error())
 	} else if !ok {
 		return ret, fmt.Errorf("article %s does not exists", analyzed.FileName)
 	}
 
 	data, err := store.GetData("Body", analyzed.FileName)
 	if err != nil {
-		return ret, err
+		return ret, fmt.Errorf("error getting body: %s", err.Error())
 	}
 
 	// need to do this because of inconsistencies in the json
@@ -50,6 +50,7 @@ func ToDebug(analyzed analyzer.Analyzable, related []analyzer.Analyzable) (Gener
 	ret.Body = parsed["Data"]
 	ret.Blurb = parsed["Desciption"]
 	ret.Related = make([]GenericArticle, len(related))
+	ret.DebugInfo = make(map[string]interface{})
 
 	for i := range related {
 		rel, err := ToDebug(related[i], nil)
