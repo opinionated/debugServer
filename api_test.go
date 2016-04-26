@@ -14,7 +14,7 @@ import (
 func getHTTPResponse(url string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", url, nil)
-	newHandler().ServeHTTP(recorder, req)
+	apiHandler().ServeHTTP(recorder, req)
 
 	return recorder
 }
@@ -22,7 +22,7 @@ func getHTTPResponse(url string) *httptest.ResponseRecorder {
 func postHTTPResponse(url, body string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", url, strings.NewReader(body))
-	newHandler().ServeHTTP(recorder, req)
+	apiHandler().ServeHTTP(recorder, req)
 
 	return recorder
 }

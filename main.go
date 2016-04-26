@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/opinionated/debugServer/debugAPI"
-	"net/http"
 )
 
 func main() {
@@ -26,7 +25,7 @@ func main() {
 	cache.push(guns)
 
 	// spin up the server
-	http.ListenAndServe(":8002", newHandler())
+	startServer()
 }
 
 func buildDebug(name string, body string,

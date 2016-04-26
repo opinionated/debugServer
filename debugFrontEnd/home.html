@@ -15,13 +15,13 @@
 	<h1> Featured Articles </h1>
 
 <script>
-	$.getJSON('http://localhost:8002/frontpage', function(data) {
+	$.getJSON('http://localhost:8002/api/frontpage', function(data) {
 		var titles = [];
 		$.each( data, function( key, val ) {
 			var x = JSON.stringify(val);
 			var y = JSON.parse(x);
 			$.each( y, function( key, val ) {
-				titles.push("<li id='" + key + "'>" + "<a href = 'localhost/debugServer/article/" + val +"'>" + val + "</li>");
+				titles.push("<li id='" + key + "'>" + "<a href = 'localhost/api/article/" + val +"'>" + val + "</li>");
 			});
 	  	});
 
