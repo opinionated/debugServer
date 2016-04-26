@@ -25,7 +25,7 @@ func main() {
 	cache.push(guns)
 
 	// spin up the server
-	startServer()
+	startServer(":8002")
 }
 
 func buildDebug(name string, body string,

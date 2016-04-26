@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func startServer() {
+func startServer(port string) {
 
 	router := mux.NewRouter()
 
@@ -15,10 +15,11 @@ func startServer() {
 	api.Path("/frontpage").HandlerFunc(HandleGetFrontpage).Methods("GET")
 	api.Path("/article/{title}").HandlerFunc(HandleGetArticle).Methods("GET")
 
+	// otherwise go to the file server
 	path := "./src/github.com/opinionated/debugServer/debugFrontEnd"
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(path)))
 
-	http.ListenAndServe(":8002", router)
+	http.ListenAndServe(port, router)
 }
 
 // returns the handler for the api

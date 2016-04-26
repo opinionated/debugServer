@@ -11,7 +11,7 @@ import (
 
 // HandleAddArticle takes care of adding an article to article list.
 // The article(s) to add are passed in as the JSON body.
-// Endpoint should be /add.
+// Endpoint should be api/add.
 func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -36,7 +36,7 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 // TODO: decide if this is how we want to do this perminently.
 // The body will look something like this:
 // [ {Title:"a"}, {Title:"b"} ]
-// Endpoint should be /frontpage.
+// Endpoint should be api/frontpage.
 func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 
 	// START CRITICAL SECTION
@@ -82,7 +82,7 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 // The body will look something like this:
 // { Body:"...", DebugInfo:{}, Related:[{Title:"", DebugInfo:""}]}
 // note that debug info can have anything in it and related is an array
-// The endpoint should be /article/{title}
+// The endpoint should be api/article/{title}
 func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -128,7 +128,7 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 
 // HandleClearArticles dumps the cache.
 // By default the cache holds 10 articles on the home page.
-// The endpoint should be /clear
+// The endpoint should be api/clear
 func HandleClearArticles(w http.ResponseWriter, r *http.Request) {
 	cache.lock()
 	cache.clear()

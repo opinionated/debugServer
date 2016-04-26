@@ -21,7 +21,7 @@
 			var x = JSON.stringify(val);
 			var y = JSON.parse(x);
 			$.each( y, function( key, val ) {
-				titles.push("<li id='" + key + "'>" + "<a href = 'localhost/api/article/" + val +"'>" + val + "</li>");
+				titles.push("<li id='" + key + "'>" + "<a href = 'http://localhost:8002/article?which=" + val +"'>" + val + "</li>");
 			});
 	  	});
 
