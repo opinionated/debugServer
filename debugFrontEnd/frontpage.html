@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>!!!!Free Hentai Porn!!!!Click Now</title>
+  <style>
+  img {
+    height: 100px;
+    float: left;
+  }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+</head>
+<body>
+	<h1> Featured Articles </h1>
+
+<script>
+	$.getJSON('http://107.170.148.224:8002/frontpage', function(data) {
+		var titles = [];
+		$.each( data, function( key, val ) {
+			var x = JSON.stringify(val);
+			var y = JSON.parse(x);
+			$.each( y, function( key, val ) {
+				titles.push("<li id='" + key + "'>" + "<a href = 'localhost/debugServer/article/" + val +"'>" + val + "</li>");
+			});
+	  	});
+
+	  	$( "<ul/>", {
+    		"class": "articleTitles",
+    		html: titles.join( "" )
+  		}).appendTo( "body" );
+	});
+</script>
+
+</body>
+</head>
