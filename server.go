@@ -18,5 +18,7 @@ func newHandler() http.Handler {
 	router.HandleFunc("/clear", HandleClearArticles).Methods("POST")
 	router.HandleFunc("/frontpage", HandleGetFrontpage).Methods("GET")
 	router.HandleFunc("/article/{title}", HandleGetArticle).Methods("GET")
+	path := "./src/github.com/opinionated/debugServer/debugFrontEnd"
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(path)))
 	return router
 }

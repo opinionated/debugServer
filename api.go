@@ -71,6 +71,10 @@ func HandleGetFrontpage(w http.ResponseWriter, r *http.Request) {
 	} else if n != len(data) {
 		w.Write(asbytes("error writing data: did not write full json"))
 	}
+
+	if err != nil {
+		w.Write(asbytes("error setting header!"))
+	}
 }
 
 // HandleGetArticle returns an article body and list of related articles.

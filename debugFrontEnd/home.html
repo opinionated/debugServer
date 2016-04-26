@@ -15,7 +15,7 @@
 	<h1> Featured Articles </h1>
 
 <script>
-	$.getJSON('http://107.170.148.224:8002/frontpage', function(data) {
+	$.getJSON('http://localhost:8002/frontpage', function(data) {
 		var titles = [];
 		$.each( data, function( key, val ) {
 			var x = JSON.stringify(val);
