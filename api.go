@@ -26,6 +26,7 @@ func HandleAddArticle(w http.ResponseWriter, r *http.Request) {
 		w.Write(asbytes("error parsing body:", err.Error()))
 		return
 	}
+	fmt.Println("adding input!")
 
 	cache.lock()
 	cache.push(article)

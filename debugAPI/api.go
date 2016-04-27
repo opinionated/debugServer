@@ -1,10 +1,12 @@
 package debugAPI
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/opinionated/analyzer-core/analyzer"
 	"github.com/opinionated/articleStore"
+	"net/http"
 )
 
 // GenericArticle stores all teh article stuff on the server
@@ -63,6 +65,35 @@ func ToDebug(analyzed analyzer.Analyzable, related []analyzer.Analyzable) (Gener
 	}
 
 	return ret, err
+}
+
+// Push an article onto the server
+func Push(article GenericArticle) error {
+	data, err := json.Marshal(article)
+	if err != nil {
+		return err
+	}
+
+	buff := bytes.NewBuffer(data)
+	fmt.Println("the url is:", serverURL, "pushing:", article)
+
+	resp, err := http.Post(serverURL+"/api/add", "application/json", buff)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("bad status code: %d", resp.StatusCode)
+	}
+
+	return err
+}
+
+// Clear all the articles from the server
+func Clear() error {
+	_, err := http.Post(serverURL+"/api/clear", "", nil)
+	return err
 }
 
 var store articleStore.Store

@@ -1,9 +1,10 @@
-package debugAPI
+package debugAPI_test
 
 import (
 	"encoding/json"
 	"github.com/opinionated/analyzer-core/analyzer"
 	"github.com/opinionated/articleStore"
+	"github.com/opinionated/debugServer/debugAPI"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,7 +17,7 @@ func TestBuildStore(t *testing.T) {
 
 	createAndStore := func(title string, taxScore int) {
 		body := title
-		article := GenericArticle{
+		article := debugAPI.GenericArticle{
 			Title: title,
 			Body:  body,
 		}
@@ -48,7 +49,7 @@ func TestToDebug(t *testing.T) {
 	store := articleStore.BuildStore(
 		"./tmp",
 		"json")
-	SetStore(store)
+	debugAPI.SetStore(store)
 
 	analyzed := analyzer.Analyzable{FileName: "a"}
 	related := []analyzer.Analyzable{
@@ -56,9 +57,34 @@ func TestToDebug(t *testing.T) {
 		analyzer.Analyzable{FileName: "c"},
 	}
 
-	article, err := ToDebug(analyzed, related)
+	article, err := debugAPI.ToDebug(analyzed, related)
 	assert.Nil(t, err)
 
 	assert.Equal(t, "a", article.Title)
 	assert.Len(t, article.Related, 2)
+}
+
+func prepTest(t *testing.T) {
+	debugAPI.SetServerURL("http://localhost:8002")
+	store := articleStore.BuildStore(
+		"./tmp",
+		"json")
+	debugAPI.SetStore(store)
+	assert.Nil(t, debugAPI.Clear())
+}
+
+func TestPush(t *testing.T) {
+	prepTest(t)
+
+	analyzed := analyzer.Analyzable{FileName: "a"}
+	related := []analyzer.Analyzable{
+		analyzer.Analyzable{FileName: "b"},
+		analyzer.Analyzable{FileName: "c"},
+	}
+
+	article, err := debugAPI.ToDebug(analyzed, related)
+	assert.Nil(t, err)
+
+	err = debugAPI.Push(article)
+	assert.Nil(t, err)
 }
