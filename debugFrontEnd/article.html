@@ -37,6 +37,15 @@
 		display: inline-block;
 		border-right: medium #000000 solid;
 		padding-right: 10px;
+		vertical-align: top;
+		min-height: 150em;
+		width:35em;
+	}
+	body > p {
+		vertical-align: top;
+		padding-right: 10px;
+		display: inline-block;
+		width:5em;
 	}
 	</style>
 	<h1> Related articles </h1>
@@ -45,13 +54,14 @@
 	<div id="related_article"></div>
 	
 	<!--- also need to go grab all the related articles -->
-	<div id="related_list">
+	<p id="related_list">
 		<style type="text/css">
-		:related_list > button {
-			display: table-row;
+		button {
+			float:left;
+			display: inline-grid;
 		}
 		</style>
-	</div>
+	</p>
 
 <script>
 	getArticle(buildArticlePage);
