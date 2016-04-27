@@ -100,6 +100,7 @@ func HandleGetArticle(w http.ResponseWriter, r *http.Request) {
 	ret := make(map[string]interface{})
 	ret["Body"] = article.Body
 	ret["DebugInfo"] = article.DebugInfo
+	ret["Title"] = article.Title
 
 	// build the related articles only if they exist
 	if len(article.Related) > 0 {

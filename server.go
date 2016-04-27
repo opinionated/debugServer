@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"strings"
 )
 
 func startServer(port string) {
@@ -16,10 +17,28 @@ func startServer(port string) {
 	api.Path("/article/{title}").HandlerFunc(HandleGetArticle).Methods("GET")
 
 	// otherwise go to the file server
-	path := "./src/github.com/opinionated/debugServer/debugFrontEnd"
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir(path)))
+	router.PathPrefix("/{filename}").HandlerFunc(HandleServeFile).Methods("GET")
 
 	http.ListenAndServe(port, router)
+}
+
+// HandleServeFile takes care of appending html onto certain articles
+func HandleServeFile(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	filename, ok := vars["filename"]
+
+	if !ok {
+		w.Write(asbytes("oh nose! bad bad bad!"))
+		return
+	}
+
+	path := "./src/github.com/opinionated/debugServer/debugFrontEnd/"
+	if strings.Contains(filename, ".") {
+		http.ServeFile(w, r, path+filename)
+	} else {
+		http.ServeFile(w, r, path+filename+".html")
+	}
 }
 
 // returns the handler for the api

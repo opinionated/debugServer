@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>very modern web page</title>
+  <style>
+  img {
+    height: 100px;
+    float: left;
+  }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
+  </script>
+  <script src="scripts.js"></script>
+</head>
+
+<!-- template for individual articles-->
+<!-- makes it more reusable -->
+<template id="article_template">
+	<style>
+	 div {
+		word-wrap: break-word;
+		width: 25em;
+	}
+	</style>
+	<div id=article>
+		<nav id="buttons">
+		</nav>
+		<h1 id="title"></h1>
+		<p id="body"></p>
+	</div>
+</template>
+
+<body id="body">
+	<style type="text/css" >
+	body > div {
+		display: inline-block;
+		border-right: medium #000000 solid;
+		padding-right: 10px;
+	}
+	</style>
+	<h1> Related articles </h1>
+
+	<div id="main_article"></div>
+	<div id="related_article"></div>
+	
+	<!--- also need to go grab all the related articles -->
+	<div id="related_list">
+		<style type="text/css">
+		:related_list > button {
+			display: table-row;
+		}
+		</style>
+	</div>
+
+<script>
+	getArticle(buildArticlePage);
+</script>
+
+</body>
+</html>
