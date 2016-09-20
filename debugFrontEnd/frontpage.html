@@ -12,17 +12,20 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 </head>
 <body>
+<div id="featured">
 	<h1> Featured Articles </h1>
+</div>
+<div id="clicked"></div>
 
 <script>
-	$.getJSON('http://localhost:8002/api/frontpage', function(data) {
+	$.getJSON("http://107.170.148.224:8002/frontpage", function(data) {
 		var titles = [];
 		$.each( data, function( key, val ) {
-			var x = JSON.stringify(val);
-			var y = JSON.parse(x);
-			$.each( y, function( key, val ) {
-				titles.push("<li id='" + key + "'>" + "<a href = 'http://localhost:8002/article?which=" + val +"'>" + val + "</li>");
-			});
+			   var x = JSON.stringify(val);
+			      var y = JSON.parse(x);
+			      $.each( y, function( key, val ) {
+				          var list_item = titles.push("<li id='" + key + "'>" + "<a href = 'http://107.170.148.224:8002/article/" + val +"'>" + val + "</li>");
+			      });
 	  	});
 
 	  	$( "<ul/>", {
