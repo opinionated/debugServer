@@ -1,0 +1,40 @@
+<!doctype HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pretty Little Liars Season 3 Recap</title>
+  <style>
+  img {
+    height: 100px;
+    float: left;
+  }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+  <script>
+    var articleMeta = window.location.search.substring(1);
+    $.getJSON("http://107.170.148.224:8002/article/" + articleMeta, function(data) {
+      var titles = [];
+      i = 1;
+      for (datum in data) {
+        console.log(data[datum]);
+        if (i==1) {
+          $(".bdy").append("<li>" + data[datum] + "</li>");
+        }
+        if (i==2) {
+          $(".dbg").append("<li>" + data[datum] + "</li>");
+        }
+        if (i==3) {
+          $(".rltd").append("<li>" + data[datum] + "</li>");
+        }
+        i++;
+        // var list_item = titles.push("<li is='" + datum + "'>")
+      }
+    });
+  </script>
+</head>
+<body>
+  <ul class="bdy"><h1>Body<h1></ul>
+  <ul class="dbg"><h1>Debug Info<h1></ul>
+  <ul class="rltd"><h1>Related<h1></ul>
+</body>

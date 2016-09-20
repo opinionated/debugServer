@@ -15,22 +15,23 @@
 <div id="featured">
 	<h1> Featured Articles </h1>
 </div>
-<div id="clicked"></div>
 
 <script>
 	$.getJSON("http://107.170.148.224:8002/frontpage", function(data) {
-		var titles = [];
+    var titles = [];
 		$.each( data, function( key, val ) {
 			   var x = JSON.stringify(val);
-			      var y = JSON.parse(x);
-			      $.each( y, function( key, val ) {
-				          var list_item = titles.push("<li id='" + key + "'>" + "<a href = 'http://107.170.148.224:8002/article/" + val +"'>" + val + "</li>");
-			      });
+			   var y = JSON.parse(x);
+  	     $.each( y, function( key, val ) {
+  		      var list_item = titles.push("<li id='" + key + "'>" + "<a href = 'article_view.html?" + val +"' class='addressClick'>" + val + "</li>");
+  	     });
 	  	});
 
 	  	$( "<ul/>", {
+
     		"class": "articleTitles",
     		html: titles.join( "" )
+
   		}).appendTo( "body" );
 	});
 </script>
