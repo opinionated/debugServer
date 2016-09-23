@@ -16,25 +16,33 @@
     $.getJSON("http://107.170.148.224:8002/article/" + articleMeta, function(data) {
       var titles = [];
       i = 1;
-      for (datum in data) {
-        console.log(data[datum]);
-        if (i==1) {
-          $(".bdy").append("<li>" + data[datum] + "</li>");
-        }
-        if (i==2) {
-          $(".dbg").append("<li>" + data[datum] + "</li>");
-        }
-        if (i==3) {
-          $(".rltd").append("<li>" + data[datum] + "</li>");
-        }
-        i++;
-        // var list_item = titles.push("<li is='" + datum + "'>")
-      }
+      stringifiedjson = JSON.parse(JSON.stringify(data));
+      $.each(stringifiedjson, function(key, val) {
+          if (key=="Body") {
+              $(".bdy").append("<li>" + val + "</li>");
+          }
+          if (key=="DebugInfo") {
+              $(".dbg").append("<li>" + val + "</li>");
+          }
+          if (key=="Related") {
+              console.log(val);
+              stringifiedval = JSON.parse(JSON.stringify(val));
+              $.each(stringifiedval, function(key2, val2) {
+                  stringifythree = JSON.parse(JSON.stringify(val2));
+                  $.each(stringifythree, function(key3, val3) {
+                      $(".rltd").append("<b>" + key3 + "</b>");
+                      $(".rltd").append("<li>" + val3+ "</li>");
+                  });
+                  $(".rltd").append("----------------------------------------------------------------------------------------------<br>");
+              });
+          }
+      });
     });
   </script>
+  <a href="frontpage.html">Back</a>
 </head>
 <body>
-  <ul class="bdy"><h1>Body<h1></ul>
-  <ul class="dbg"><h1>Debug Info<h1></ul>
-  <ul class="rltd"><h1>Related<h1></ul>
+  <ul class="bdy"><h1>Body</h1></ul>
+  <ul class="dbg"><h1>Debug Info</h1></ul>
+  <ul class="rltd"><h1>Related</h1></ul>
 </body>
