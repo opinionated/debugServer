@@ -4,3 +4,8 @@ ul {
     padding-bottom: 20px;
     background-color: #79BAEC;
 }
+
+li {
+    list-style-position: inside;
+    padding-left: 2%;
+}
