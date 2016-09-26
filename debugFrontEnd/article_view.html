@@ -1,48 +1,50 @@
 <!doctype HTML>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Pretty Little Liars Season 3 Recap</title>
-  <style>
-  img {
-    height: 100px;
-    float: left;
-  }
-  </style>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
-  <script>
-    var articleMeta = window.location.search.substring(1);
-    $.getJSON("http://107.170.148.224:8002/article/" + articleMeta, function(data) {
-      var titles = [];
-      i = 1;
-      stringifiedjson = JSON.parse(JSON.stringify(data));
-      $.each(stringifiedjson, function(key, val) {
-          if (key=="Body") {
-              $(".bdy").append("<li>" + val + "</li>");
-          }
-          if (key=="DebugInfo") {
-              $(".dbg").append("<li>" + val + "</li>");
-          }
-          if (key=="Related") {
-              console.log(val);
-              stringifiedval = JSON.parse(JSON.stringify(val));
-              $.each(stringifiedval, function(key2, val2) {
-                  stringifythree = JSON.parse(JSON.stringify(val2));
-                  $.each(stringifythree, function(key3, val3) {
-                      $(".rltd").append("<b>" + key3 + "</b>");
-                      $(".rltd").append("<li>" + val3+ "</li>");
-                  });
-                  $(".rltd").append("----------------------------------------------------------------------------------------------<br>");
-              });
-          }
-      });
-    });
-  </script>
-  <a href="frontpage.html">Back</a>
+<head>
+    <meta charset="utf-8">
+    <title>Pretty Little Liars Season 3 Recap</title>
+    <link rel="stylesheet" type="text/css" href="article_view_styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        var articleMeta = window.location.search.substring(1);
+        $(".title").append(JSON.stringify(articleMeta));
+        $.getJSON("http://107.170.148.224:8002/article/" + articleMeta, function(data) {
+            var titles = [];
+            i = 1;
+            stringifiedjson = JSON.parse(JSON.stringify(data));
+            $.each(stringifiedjson, function(key, val) {
+                if (key == "Body") {
+                    $(".bdy").append("<li>" + val + "</li>");
+                }
+                if (key == "DebugInfo") {
+                    $(".dbg").append("<li>" + val + "</li>");
+                }
+                if (key == "Related") {
+                    $(".rltd").append("----------------------------------------------------------------------------------------------<br>");
+                    $.each(val, function(key2, val2) {
+                        stringifythree = JSON.parse(JSON.stringify(val2));
+                        $.each(stringifythree, function(key3, val3) {
+                            $(".rltd").append("<b>" + key3 + "</b>");
+                            $(".rltd").append("<li>" + val3 + "</li>");
+                        });
+                        $(".rltd").append("----------------------------------------------------------------------------------------------<br>");
+                    });
+                }
+            });
+        });
+    </script>
+    <a href="frontpage.html">Back</a>
 </head>
+
 <body>
-  <ul class="bdy"><h1>Body</h1></ul>
-  <ul class="dbg"><h1>Debug Info</h1></ul>
-  <ul class="rltd"><h1>Related</h1></ul>
+    <ul class=bdy>
+        <h2>Body</h2>
+    </ul>
+    <ul class=dbg>
+        <h2>Debug Info</h2>
+    </ul>
+    <ul class=rltd>
+        <h2>Related</h2>
+    </ul>
 </body>

@@ -1,40 +1,41 @@
-<!doctype html>
+<!doctype HTML>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>!!!Cheap Rollex Watch!!!Low Quantity Buy Now Click Now!!!</title>
-  <style>
-  img {
-    height: 100px;
-    float: left;
-  }
-  </style>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <meta charset="utf-8">
+    <title>!!!Cheap Rollex Watch!!!Low Quantity Buy Now Click Now!!!</title>
+    <style>
+        img {
+            height: 100px;
+            float: left;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 </head>
+
 <body>
-<div id="featured">
-	<h1> Featured Articles </h1>
-</div>
+    <div id="featured">
+        <h1> Featured Articles </h1>
+    </div>
 
-<script>
-	$.getJSON("http://107.170.148.224:8002/frontpage", function(data) {
-    var titles = [];
-		$.each( data, function( key, val ) {
-			   var x = JSON.stringify(val);
-			   var y = JSON.parse(x);
-  	     $.each( y, function( key, val ) {
-  		      var list_item = titles.push("<li id='" + key + "'>" + "<a href = 'article_view.html?" + val +"' class='addressClick'>" + val + "</li>");
-  	     });
-	  	});
+    <script>
+        $.getJSON("http://107.170.148.224:8002/frontpage", function(data) {
+            var titles = [];
+            $.each(data, function(key, val) {
+                var x = JSON.stringify(val);
+                var y = JSON.parse(x);
+                $.each(y, function(key, val) {
+                    var list_item = titles.push("<li id='" + key + "'>" + "<a href = 'article_view.html?" + val + "' class='addressClick'>" + val + "</li>");
+                });
+            });
 
-	  	$( "<ul/>", {
+            $("<ul/>", {
 
-    		"class": "articleTitles",
-    		html: titles.join( "" )
+                "class": "articleTitles",
+                html: titles.join("")
 
-  		}).appendTo( "body" );
-	});
-</script>
+            }).appendTo("body");
+        });
+    </script>
 
 </body>
-</head>
